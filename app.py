@@ -22,10 +22,10 @@ Try more langchain,streamlit agent examples on github
 st.sidebar.title("Settings")
 api_key=st.sidebar.text_input("Enter your Groq API key:",type="password")
 if "messages" not in st.session_state:
-    st.session_state["messages"]=[
-        {"role":"assistant,"content":"Hi,i'm a chatbot who can search the web.How can i help you?"}
-
+    st.session_state["messages"] = [
+        {"role": "assistant", "content": "Hi, I'm a chatbot who can search the web. How can I help you?"}
     ]
+
 for msg in st.session.messages:
     st.chat_message(msg["role"].write(msg["content"]))
 if prompt:=st.chat_input(placeholder="what is machine learning?"):
@@ -41,6 +41,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning?"):
         st.write(response)
 
         
+
 
 
 
