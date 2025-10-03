@@ -1,55 +1,72 @@
 import streamlit as st
-import ddgs
-from langchain_groq import ChatGroq
-from langchain_community.utilities import ArxivAPIWrapper,WikipediaAPIWrapper
-from langchain_community.tools import ArxivQueryRun,WikipediaQueryRun,DuckDuckGoSearchRun
-from langchain.agents import initialize_agent,agent_type
-from langchain.callbacks import StreamlitCallbackHandler
 import os
 from dotenv import load_dotenv
-groq_api_key=os.getenv("GROQ_API_KEY")
-arxiv_wrapper=ArxivAPIWrapper(top_k_results=1,doc_content_chars_max=200)
-arxiv=ArxivQueryRun(api_wrapper=arxiv_wrapper)
-wiki_wrapper=WikipediaAPIWrapper(top_k_results=1,doc_content_chars_max=200)
-wiki=WikipediaQueryRun(api_wrapper=wiki_wrapper)
-search=DuckDuckGoSearchRun(name="search")
-st.title("LangChain -Chat with search")
-"""
-in this example,we are using "StreamlitCallbackHandler" to display the thoughts of actions
-Try more langchain,streamlit agent examples on github
 
-"""
+from langchain_groq import ChatGroq
+from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
+from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchRun
+from langchain.agents import initialize_agent, AgentType
+from langchain.callbacks import StreamlitCallbackHandler
+
+# Load environment variables
+load_dotenv()
+
+groq_api_key = os.getenv("GROQ_API_KEY")
+
+# Wrappers
+arxiv_wrapper = ArxivAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+arxiv = ArxivQueryRun(api_wrapper=arxiv_wrapper)
+
+wiki_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
+wiki = WikipediaQueryRun(api_wrapper=wiki_wrapper)
+
+search = DuckDuckGoSearchRun(name="search")
+
+# Streamlit UI
+st.title("LangChain - Chat with search")
+st.markdown(
+    """
+    In this example, we are using **StreamlitCallbackHandler** to display the thoughts of actions.  
+    Try more LangChain + Streamlit agent examples on GitHub!
+    """
+)
+
 st.sidebar.title("Settings")
-api_key=st.sidebar.text_input("Enter your Groq API key:",type="password")
+api_key_input = st.sidebar.text_input("Enter your Groq API key:", type="password")
+
+# Prefer sidebar key if entered
+if api_key_input:
+    groq_api_key = api_key_input
+
+# Initialize messages
 if "messages" not in st.session_state:
-    st.session_state["messages"]=[
-        {"role":"assistant,"content":"Hi,i'm a chatbot who can search the web.How can i help you?}
-
+    st.session_state["messages"] = [
+        {"role": "assistant", "content": "Hi, I'm a chatbot who can search the web. How can I help you?"}
     ]
-for msg in st.session.messages:
-    st.chat_message(msg["role"].write(msg["content"]))
-if prompt:=st.chat_input(placeholder="what is machine learning?"):
-    st.session_state.messages.append({"role":"user","content":prompt})
+
+# Display past messages
+for msg in st.session_state["messages"]:
+    st.chat_message(msg["role"]).write(msg["content"])
+
+# Handle new prompt
+if prompt := st.chat_input(placeholder="What is machine learning?"):
+    # Add user message
+    st.session_state["messages"].append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    llm=ChatGroq(api_key=groq_api_key,model="llama-3.1-8b-instant",streaming=True)
-    tools=[search,arxiv,wiki]
-    search_agent=initialize_agent(tools,llm,agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
+
+    # Initialize LLM
+    llm = ChatGroq(
+        api_key=groq_api_key,
+        model="llama-3.1-8b-instant",
+        streaming=True,
+        temperature=0.7
+    )
+
+    tools = [search, arxiv, wiki]
+    search_agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
+
     with st.chat_message("assistant"):
-        st_cb=StreamlitCallbackHandler(st.container(),expand_new_thoughts=True)
-        response=search_agent.run(st.session_state.messages,callbacks=[st_cb])
-        st.session_state.messages.append({"role":"assistant","content":response})
+        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
+        response = search_agent.run(st.session_state["messages"], callbacks=[st_cb])
+        st.session_state["messages"].append({"role": "assistant", "content": response})
         st.write(response)
-
-        
-
-
-
-
-
-
-
-
-
-
-
-openai_api_key="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"
