@@ -4,6 +4,7 @@ from langchain_community.utilities import ArxivAPIWrapper,WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun,WikipediaQueryRun,DuckDuckGoSearchRun
 from langchain.agents import initialize_agent,agent_type
 from langchain.callbacks import StreamlitCallbackHandler
+from langchain_community.tools import DuckDuckGoSearchRun
 import os
 from dotenv import load_dotenv
 groq_api_key=os.getenv("GROQ_API_KEY")
@@ -40,6 +41,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning?"):
         st.write(response)
 
         
+
 
 
 
