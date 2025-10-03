@@ -1,5 +1,4 @@
 import streamlit as st
-import ddgs
 from langchain_groq import ChatGroq
 from langchain_community.utilities import ArxivAPIWrapper,WikipediaAPIWrapper
 from langchain_community.tools import ArxivQueryRun,WikipediaQueryRun,DuckDuckGoSearchRun
@@ -41,6 +40,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning?"):
         st.write(response)
 
         
+
 
 
 
